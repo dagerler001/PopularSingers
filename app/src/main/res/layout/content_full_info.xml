@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/activity_full_info"
+    tools:context="com.example.vorona.appl.FullInfoActivity"
+    android:id="@+id/back">
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Name"
+        android:id="@+id/title"
+        android:textSize="32sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:textAlignment="center"
+        android:alpha="0.9"
+        android:background="#ffffff"
+        android:transitionName="@string/transition_name"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:src="@drawable/default_picture"
+        android:layout_below="@+id/title"
+        android:id="@+id/cover_big"
+        android:scaleType="centerCrop"
+        android:transitionName="@string/transition_cover"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="nums"
+        android:id="@+id/tracks"
+        android:layout_below="@+id/cover_big"
+        android:layout_centerHorizontal="true"
+        android:textSize="16sp"
+        android:textAlignment="center"
+        android:alpha="0.85"
+        android:background="#ffffff"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:src="@drawable/star"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_above="@+id/tracks"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/bio"
+        android:layout_below="@+id/tracks"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:textSize="18sp"
+        android:textAlignment="gravity"
+        android:alpha="0.85"
+        android:background="#ffffff"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp"
+        android:scrollbars="vertical"/>
+
+</RelativeLayout>

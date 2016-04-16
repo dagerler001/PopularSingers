@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/vorona/AndroidStudioProjects/Appl/app/build/intermediates/exploded-aar/com.android.support/cardview-v7/23.1.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="d96886efea7cc74fbb3abd0e3b51d5638fc57be0">
+        <dex dex="/Users/vorona/AndroidStudioProjects/Appl/app/build/intermediates/pre-dexed/debug/classes-651a44bb3ad5c97a7b086bfda72112d7aa822ad1.jar" />
+    </item>
+
+</items>
