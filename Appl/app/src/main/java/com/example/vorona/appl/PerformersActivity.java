@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -85,8 +86,20 @@ public class PerformersActivity extends AppCompatActivity
         }
     }
 
-    void updateView(GetInfoAsyncTask task) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        navigationView.setCheckedItem(R.id.main_activity);
+    }
 
+    /**
+     * Show loading bar while getting data.
+     * Hide when download is finished. If an error occurred during download textView and retry button are shown.
+     * Otherwise recyclerView is shown.
+     *
+     * @param task GetInfoAsyncTask which is working at the moment
+     */
+    void updateView(GetInfoAsyncTask task) {
         switch (task.getState()) {
             case DOWNLOADING:
                 p_bar.setVisibility(View.VISIBLE);
@@ -119,6 +132,10 @@ public class PerformersActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Will continue current DatabaseAsyncTask on restart of activity.
+     * @return current DatabaseAsyncTask
+     */
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
         if (downloadTask.getState() == DownloadState.ERROR)
@@ -126,6 +143,9 @@ public class PerformersActivity extends AppCompatActivity
         return downloadTask;
     }
 
+    /**
+     * Kill current activity when pressed back button
+     */
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -136,6 +156,9 @@ public class PerformersActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Inflate the menu, adds items to the action bar if it is present.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -153,12 +176,14 @@ public class PerformersActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Open selected activity. If selected activity and current activity are the same won't do anything.
+     */
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        navigationView.setCheckedItem(R.id.main_activity);
         if (id == R.id.main_activity) {
 
         } else if (id == R.id.favs) {
@@ -178,6 +203,10 @@ public class PerformersActivity extends AppCompatActivity
         return true;
     }
 
+    /**
+     * Open new activity with full information about selected performer.
+     * @param singer selected in RecycleView singer
+     */
     @Override
     public void onPerformerSelected(Singer singer) {
         Intent gr = new Intent(this, FullInfoActivity.class);
@@ -188,8 +217,8 @@ public class PerformersActivity extends AppCompatActivity
     }
 
     public void onRetryClick(View view) {
-//        downloadTask = new GetInfoAsyncTask(this);
-//        downloadTask.execute(); TODO
+        downloadTask = new GetInfoAsyncTask(this);
+        downloadTask.execute();
 //        recreate();
 //        Intent intent = getIntent();
 //        finish();

@@ -47,6 +47,8 @@ public class GetInfoAsyncTask extends AsyncTask<String, Integer, Void> {
     public GetInfoAsyncTask(PerformersActivity activity) {
         this.activity = activity;
         singers = new ArrayList<>();
+        state = DownloadState.DOWNLOADING;
+        activity.updateView(this);
     }
 
     /**
@@ -55,7 +57,6 @@ public class GetInfoAsyncTask extends AsyncTask<String, Integer, Void> {
      */
     public void attachActivity(PerformersActivity activity) {
         this.activity = activity;
-        state = DownloadState.DOWNLOADING;
         activity.updateView(this);
     }
 
@@ -87,8 +88,6 @@ public class GetInfoAsyncTask extends AsyncTask<String, Integer, Void> {
             Log.w(LOG_TAG, "We got exception during download");
             state = DownloadState.ERROR;
             return null;
-        } finally {
-            activity.updateView(this);
         }
     }
 
@@ -98,13 +97,13 @@ public class GetInfoAsyncTask extends AsyncTask<String, Integer, Void> {
      */
     @Override
     protected void onPostExecute(Void vi) {
+        activity.updateView(this);
         Log.w(LOG_TAG, "Finished Async Task");
         if (state == DownloadState.DONE) {
             RecyclerView rv = (RecyclerView) activity.findViewById(R.id.list_perf);
             FirstRecyclerAdapter mAdapter = new FirstRecyclerAdapter(singers);
             setListener(rv, mAdapter);
         }
-        activity.updateView(this);
     }
 
     private void setListener(RecyclerView rv, RecyclerAdapter adapter) {

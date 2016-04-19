@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="invisible"
+        android:visibility="visible"
         android:id="@+id/progress_perf"
         android:layout_alignTop="@+id/retry"
         android:layout_alignStart="@+id/retry" />
@@ -43,10 +43,11 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:id="@+id/retry"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
         android:src="@drawable/retry"
-        android:onClick="onRetryClick" />
+        android:onClick="onRetryClick"
+        android:visibility="invisible"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>

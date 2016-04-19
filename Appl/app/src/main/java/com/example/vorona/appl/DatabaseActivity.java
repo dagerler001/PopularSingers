@@ -2,6 +2,7 @@ package com.example.vorona.appl;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,6 +14,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.vorona.appl.list.FirstRecyclerAdapter;
 import com.example.vorona.appl.list.PerformerSelectedListener;
@@ -28,6 +32,11 @@ public class DatabaseActivity extends AppCompatActivity implements NavigationVie
     private DatabaseAsyncTask databaseAsyncTask;
     private NavigationView navigationView;
     String type = "";
+
+    private TextView title;
+    private RecyclerView rv;
+    private ProgressBar p_bar;
+    private Typeface face;
 
     //flag for current orientation
     public boolean horizontal = false;
@@ -55,15 +64,20 @@ public class DatabaseActivity extends AppCompatActivity implements NavigationVie
         toggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view_d);
-        RecyclerView rv = (RecyclerView) findViewById(R.id.list_d);
         if (type.equals("Recent")) {
-            setTitle("Recent");
+            setTitle(R.string.rec_title);
             navigationView.setCheckedItem(R.id.recent);
         } else {
-            setTitle("Favorites");
+            setTitle(R.string.fav_title);
             navigationView.setCheckedItem(R.id.favs);
         }
         navigationView.setNavigationItemSelectedListener(this);
+
+        title = (TextView) findViewById(R.id.no_d);
+        rv = (RecyclerView) findViewById(R.id.list_d);
+        p_bar = (ProgressBar) findViewById(R.id.progress_d);
+        face = Typeface.createFromAsset(title.getContext().getAssets(), "fonts/Elbing.otf");
+        title.setTypeface(face);
 
         //setting initial adapter and layoutManager for recyclerView.
         rv.setAdapter(new FirstRecyclerAdapter(new ArrayList<Singer>()));
@@ -93,13 +107,36 @@ public class DatabaseActivity extends AppCompatActivity implements NavigationVie
      * @param task DatabaseAsyncTask which is working at the moment
      */
     protected void updateView(DatabaseAsyncTask task) {
-        //TODO
+        switch (task.getState()) {
+            case DOWNLOADING:
+                p_bar.setVisibility(View.VISIBLE);
+                rv.setVisibility(View.INVISIBLE);
+                title.setVisibility(View.INVISIBLE);
+                break;
+            case DONE:
+                p_bar.setVisibility(View.INVISIBLE);
+                rv.setVisibility(View.VISIBLE);
+                title.setVisibility(View.INVISIBLE);
+                break;
+            case ERROR:
+                p_bar.setVisibility(View.INVISIBLE);
+                rv.setVisibility(View.INVISIBLE);
+                title.setVisibility(View.VISIBLE);
+                title.setText(R.string.txt_error);
+                break;
+            case EMPTY:
+                p_bar.setVisibility(View.INVISIBLE);
+                rv.setVisibility(View.INVISIBLE);
+                title.setVisibility(View.VISIBLE);
+                title.setText(R.string.txt_empty);
+                break;
+            default: break;
+        }
     }
 
     /**
      * Will continue current DatabaseAsyncTask on restart of activity.
      * @return current DatabaseAsyncTask
-     * TODO нужно ли это?
      */
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
@@ -137,15 +174,10 @@ public class DatabaseActivity extends AppCompatActivity implements NavigationVie
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (type.equals("Recent"))
-            navigationView.setCheckedItem(R.id.recent);
-        else
-            navigationView.setCheckedItem(R.id.favs);
 
         if (id == R.id.main_activity) {
-            Intent gr = new Intent(this, PerformersActivity.class);
-            startActivity(gr);
-            overridePendingTransition(R.anim.from_right, R.anim.to_left);
+            finish();
+            overridePendingTransition(R.anim.from_left, R.anim.to_right);
         } else if (id == R.id.favs && type.equals("Recent")) {
             Intent gr = new Intent(this, DatabaseActivity.class);
             gr.putExtra("TYPE", "Favorites");

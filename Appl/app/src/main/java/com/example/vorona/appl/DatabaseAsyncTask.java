@@ -53,6 +53,8 @@ public class DatabaseAsyncTask extends AsyncTask<String, Void, Void> {
     public DatabaseAsyncTask(DatabaseActivity activity) {
         this.activity = activity;
         singerList = new ArrayList<>();
+        state = DownloadState.DOWNLOADING;
+        activity.updateView(this);
     }
 
     /**
@@ -61,7 +63,6 @@ public class DatabaseAsyncTask extends AsyncTask<String, Void, Void> {
      */
     public void attachActivity(DatabaseActivity activity) {
         this.activity = activity;
-        state = DownloadState.DOWNLOADING;
         activity.updateView(this);
     }
 
@@ -87,7 +88,6 @@ public class DatabaseAsyncTask extends AsyncTask<String, Void, Void> {
             } else {
                 state = DownloadState.EMPTY;
             }
-            activity.updateView(this);
             return null;
         } catch (Exception e) {
             Log.w(LOG_TAG, "We got exception during download from database");
@@ -105,10 +105,10 @@ public class DatabaseAsyncTask extends AsyncTask<String, Void, Void> {
      */
     @Override
     protected void onPostExecute(Void vi) {
+        activity.updateView(this);
         Log.w(LOG_TAG, "Finished Async Task");
 
         RecyclerView rv = (RecyclerView) activity.findViewById(R.id.list_d);
-        TextView txt_no = (TextView) activity.findViewById(R.id.no_d);
 
         ArrayList<Singer> list = new ArrayList<>();
         list.addAll(singerList);
@@ -116,16 +116,6 @@ public class DatabaseAsyncTask extends AsyncTask<String, Void, Void> {
         if (state == DownloadState.DONE) {
             rv.setVisibility(View.VISIBLE);
             setListener(rv, new FirstRecyclerAdapter(list));
-        }
-        else {
-            txt_no.setVisibility(View.VISIBLE);
-            Typeface face = Typeface.createFromAsset(txt_no.getContext().getAssets(), "fonts/Elbing.otf");
-            txt_no.setTypeface(face);
-            if (state == DownloadState.EMPTY) {
-                txt_no.setText(R.string.txt_empty);
-            } else {
-                txt_no.setText(R.string.unknown_error);
-            }
         }
     }
 

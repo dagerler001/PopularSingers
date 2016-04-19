@@ -1,10 +1,12 @@
 package com.example.vorona.appl.list;
 
 import android.content.Context;
+import android.view.Display;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import com.example.vorona.appl.PerformersActivity;
 import com.example.vorona.appl.R;
 import com.example.vorona.appl.Singer;
 import com.squareup.picasso.Picasso;
@@ -57,7 +59,8 @@ public class FirstRecyclerAdapter extends RecyclerAdapter implements Animation.A
         holder.groupName.setText(singers.get(position).getName());
         holder.genres.setText(singers.get(position).getGenres());
         Context context = holder.cover.getContext();
-        Picasso.with(context).load(singers.get(position).getCover_small()).fit().into(holder.cover);
+
+        Picasso.with(context).load(singers.get(position).getCover_small()).into(holder.cover);
         holder.itemView.setTag(R.id.tag, singers.get(position));
     }
 
