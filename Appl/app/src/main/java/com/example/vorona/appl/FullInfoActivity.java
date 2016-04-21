@@ -43,7 +43,10 @@ public class FullInfoActivity extends AppCompatActivity {
         //Get information about selected performer
         Intent i = getIntent();
         final Singer singer = i.getParcelableExtra("SINGER");
-        addToTable("Recent", singer);
+
+        // Add in "Recent" table
+        if (!addToTable("Recent", singer))
+            addToTable("Recent", singer);
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if (checkInTable("Favorites", singer)) {
@@ -52,7 +55,7 @@ public class FullInfoActivity extends AppCompatActivity {
             fab.setImageResource(R.drawable.star);
         }
 
-        //If selected present in favourite list delete it, add otherwise
+        //If selected performer already presents in favourite list delete it, add otherwise
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

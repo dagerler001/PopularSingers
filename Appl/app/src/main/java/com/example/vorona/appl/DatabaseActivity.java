@@ -1,7 +1,6 @@
 package com.example.vorona.appl;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -38,22 +37,16 @@ public class DatabaseActivity extends AppCompatActivity implements NavigationVie
     private ProgressBar p_bar;
     private Typeface face;
 
-    //flag for current orientation
-    public boolean horizontal = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_database);
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-            horizontal = true;
-
-        //Determinates if new activity should represent Recent or Favorite performers
+        //Specify if new activity should represent Recent or Favorite performers
         Intent i = getIntent();
         type = i.getStringExtra("TYPE");
 
-        //Customizing toolbar and navigationView
+        //Customize toolbar and navigationView
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_d);
         setSupportActionBar(toolbar);
 
@@ -79,11 +72,11 @@ public class DatabaseActivity extends AppCompatActivity implements NavigationVie
         face = Typeface.createFromAsset(title.getContext().getAssets(), "fonts/Elbing.otf");
         title.setTypeface(face);
 
-        //setting initial adapter and layoutManager for recyclerView.
+        //set initial adapter and layoutManager for recyclerView.
         rv.setAdapter(new FirstRecyclerAdapter(new ArrayList<Singer>()));
         rv.setLayoutManager(new LinearLayoutManager(rv.getContext()));
 
-        //checking for saved AsyncTask
+        //check for saved AsyncTask
         if (savedInstanceState != null) {
             databaseAsyncTask = (DatabaseAsyncTask) getLastCustomNonConfigurationInstance();
             databaseAsyncTask.attachActivity(this);
@@ -136,10 +129,13 @@ public class DatabaseActivity extends AppCompatActivity implements NavigationVie
 
     /**
      * Will continue current DatabaseAsyncTask on restart of activity.
+     * Don't save if error occurred during download.
      * @return current DatabaseAsyncTask
      */
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
+        if (databaseAsyncTask.getState() == DownloadState.ERROR)
+            return null;
         return databaseAsyncTask;
     }
 
@@ -169,7 +165,7 @@ public class DatabaseActivity extends AppCompatActivity implements NavigationVie
     }
 
     /**
-     * Open selected activity. If selected activity and current activity are the same won't do anything.
+     * Open selected activity. If selected activity and current activity are the same don't do anything.
      */
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -198,21 +194,11 @@ public class DatabaseActivity extends AppCompatActivity implements NavigationVie
     }
 
     /**
-     * Inflate the menu, adds items to the action bar if it is present.
+     * Inflate the menu, add items to the action bar if it is present.
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.performers, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        return super.onOptionsItemSelected(item);
     }
 }

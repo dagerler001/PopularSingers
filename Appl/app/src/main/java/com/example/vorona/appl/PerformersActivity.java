@@ -1,7 +1,6 @@
 package com.example.vorona.appl;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -12,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,9 +29,6 @@ import java.util.ArrayList;
 public class PerformersActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, PerformerSelectedListener {
 
-    //flag for current orientation
-    public boolean horizontal = false;
-
     private GetInfoAsyncTask downloadTask;
     private NavigationView navigationView;
 
@@ -48,10 +43,7 @@ public class PerformersActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_performers);
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-            horizontal = true;
-
-        //Customizing toolbar and navigationView
+        //Customize toolbar and navigationView
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -72,10 +64,12 @@ public class PerformersActivity extends AppCompatActivity
         title.setTypeface(face);
         retry = (ImageView) findViewById(R.id.retry);
 
+        //set initial adapter and layoutManager for recyclerView.
         RecyclerView rv = (RecyclerView) findViewById(R.id.list_perf);
         rv.setAdapter(new FirstRecyclerAdapter(new ArrayList<Singer>()));
         rv.setLayoutManager(new LinearLayoutManager(rv.getContext()));
 
+        //check for saved AsyncTask
         if (savedInstanceState != null) {
             downloadTask = (GetInfoAsyncTask) getLastCustomNonConfigurationInstance();
             downloadTask.attachActivity(this);
@@ -134,6 +128,7 @@ public class PerformersActivity extends AppCompatActivity
 
     /**
      * Will continue current DatabaseAsyncTask on restart of activity.
+     * Don't save if error occurred during download.
      * @return current DatabaseAsyncTask
      */
     @Override
@@ -164,16 +159,6 @@ public class PerformersActivity extends AppCompatActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.performers, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -216,12 +201,11 @@ public class PerformersActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Restart GetInfoAsyncTask
+     */
     public void onRetryClick(View view) {
         downloadTask = new GetInfoAsyncTask(this);
         downloadTask.execute();
-//        recreate();
-//        Intent intent = getIntent();
-//        finish();
-//        startActivity(intent);
     }
 }

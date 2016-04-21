@@ -20,5 +20,7 @@
     <string name="transition_name">transition:NAME</string>
     <string name="transition_cover">transition:COVER</string>
     <string name="image_description">cover</string>
+    <string name="title_activity_nav">nav</string>
+    <string name="title_performers">Исполнители</string>
 
 </resources>

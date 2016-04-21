@@ -1,17 +1,15 @@
 package com.example.vorona.appl;
 
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import com.example.vorona.appl.list.FirstRecyclerAdapter;
-import com.example.vorona.appl.list.PerformerSelectedListener;
 import com.example.vorona.appl.list.RecyclerAdapter;
 
 import java.util.ArrayList;
@@ -122,7 +120,7 @@ public class DatabaseAsyncTask extends AsyncTask<String, Void, Void> {
 
     protected void setListener(RecyclerView rv, RecyclerAdapter adapter) {
         rv.setHasFixedSize(true);
-        int cnt = (activity.horizontal ? 3 : 2);
+        int cnt = (activity.getResources().getConfiguration().orientation ==  Configuration.ORIENTATION_LANDSCAPE ? 3 : 2);
         StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(cnt, StaggeredGridLayoutManager.VERTICAL);
         rv.setLayoutManager(mLayoutManager);
         adapter.setPerformerSelectedListener(activity);

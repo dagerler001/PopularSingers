@@ -17,7 +17,7 @@ public class Singer implements Parcelable{
     public Singer() {}
 
     /**
-     * Creates an instance of Singer class from Parcel.
+     * Create an instance of Singer class from Parcel.
      * Used with intents.
      */
     public Singer(Parcel parcel) {

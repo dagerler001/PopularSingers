@@ -1,5 +1,6 @@
 package com.example.vorona.appl;
 
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -108,7 +109,7 @@ public class GetInfoAsyncTask extends AsyncTask<String, Integer, Void> {
 
     private void setListener(RecyclerView rv, RecyclerAdapter adapter) {
         rv.setHasFixedSize(true);
-        int cnt = (activity.horizontal ? 3 : 2);
+        int cnt = (activity.getResources().getConfiguration().orientation ==  Configuration.ORIENTATION_LANDSCAPE ? 3 : 2);
         StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(cnt, StaggeredGridLayoutManager.VERTICAL);
         rv.setLayoutManager(mLayoutManager);
         adapter.setPerformerSelectedListener(activity);

@@ -8,11 +8,12 @@
     <include layout="@layout/app_bar_performers" android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <android.support.design.widget.NavigationView android:id="@+id/nav_view"
-        android:layout_width="60dp" android:layout_height="match_parent"
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="64dp" android:layout_height="match_parent"
         android:layout_gravity="start" android:fitsSystemWindows="true"
-        app:headerLayout="@null"
-        app:menu="@menu/activity_performers_drawer" />
+        app:menu="@menu/activity_performers_drawer"
+        android:focusable="false" />
 
 
 </android.support.v4.widget.DrawerLayout>
