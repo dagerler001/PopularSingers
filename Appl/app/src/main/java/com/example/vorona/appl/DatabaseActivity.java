@@ -77,17 +77,17 @@ public class DatabaseActivity extends AppCompatActivity implements NavigationVie
         rv.setLayoutManager(new LinearLayoutManager(rv.getContext()));
 
         //check for saved AsyncTask
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null && databaseAsyncTask != null) {
             databaseAsyncTask = (DatabaseAsyncTask) getLastCustomNonConfigurationInstance();
             databaseAsyncTask.attachActivity(this);
             databaseAsyncTask.onPostExecute(null);
         } else {
-            if (type.equals("Recent")) {
+            if (type.equals(getString(R.string.recent_table))) {
                 databaseAsyncTask = new DatabaseAsyncTask(this);
-                databaseAsyncTask.execute("Recent");
+                databaseAsyncTask.execute(getString(R.string.recent_table));
             } else {
                 databaseAsyncTask = new DatabaseAsyncTask(this);
-                databaseAsyncTask.execute("Favorites");
+                databaseAsyncTask.execute(getString(R.string.fav_table));
             }
         }
     }
@@ -176,12 +176,12 @@ public class DatabaseActivity extends AppCompatActivity implements NavigationVie
             overridePendingTransition(R.anim.from_left, R.anim.to_right);
         } else if (id == R.id.favs && type.equals("Recent")) {
             Intent gr = new Intent(this, DatabaseActivity.class);
-            gr.putExtra("TYPE", "Favorites");
+            gr.putExtra("TYPE", getString(R.string.fav_table));
             startActivity(gr);
             overridePendingTransition(R.anim.from_right, R.anim.to_left);
-        } else if (id == R.id.recent && !type.equals("Recent")) {
+        } else if (id == R.id.recent && !type.equals(getString(R.string.recent_table))) {
             Intent gr = new Intent(this, DatabaseActivity.class);
-            gr.putExtra("TYPE", "Recent");
+            gr.putExtra("TYPE", getString(R.string.recent_table));
             startActivity(gr);
             overridePendingTransition(R.anim.from_right, R.anim.to_left);
         }

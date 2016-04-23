@@ -22,7 +22,7 @@ import java.util.List;
  * Asynchronous task for loading json-file and parsing.
  * The final list of perforemers is displayed in recyclerView
  */
-public class GetInfoAsyncTask extends AsyncTask<String, Integer, Void> {
+public class GetInfoAsyncTask extends AsyncTask<String, Integer, Integer> {
 
     /**
      * Activity attached to concrete GetInfoAsyncTask
@@ -74,7 +74,7 @@ public class GetInfoAsyncTask extends AsyncTask<String, Integer, Void> {
      * @param params ignored
      */
     @Override
-    protected Void doInBackground(String... params) {
+    protected Integer doInBackground(String... params) {
         Log.w(LOG_TAG, "Started Async Task");
         try {
             singers = getSinger();
@@ -97,7 +97,7 @@ public class GetInfoAsyncTask extends AsyncTask<String, Integer, Void> {
      * @param vi
      */
     @Override
-    protected void onPostExecute(Void vi) {
+    protected void onPostExecute(Integer vi) {
         activity.updateView(this);
         Log.w(LOG_TAG, "Finished Async Task");
         if (state == DownloadState.DONE) {

@@ -45,11 +45,11 @@ public class FullInfoActivity extends AppCompatActivity {
         final Singer singer = i.getParcelableExtra("SINGER");
 
         // Add in "Recent" table
-        if (!addToTable("Recent", singer))
-            addToTable("Recent", singer);
+        if (!addToTable(getString(R.string.recent_table), singer))
+            addToTable(getString(R.string.recent_table), singer);
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        if (checkInTable("Favorites", singer)) {
+        if (checkInTable(getString(R.string.fav_table), singer)) {
             fab.setImageResource(R.drawable.added);
         } else {
             fab.setImageResource(R.drawable.star);
@@ -59,12 +59,12 @@ public class FullInfoActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!addToTable("Favorites", singer)) {
-                    Snackbar.make(view, "Deleted from favorites", Snackbar.LENGTH_LONG)
+                if (!addToTable(getString(R.string.fav_table), singer)) {
+                    Snackbar.make(view,getString(R.string.deleted), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     fab.setImageResource(R.drawable.star);
                 } else {
-                    Snackbar.make(view, "Added to favorites", Snackbar.LENGTH_LONG)
+                    Snackbar.make(view, getString(R.string.added) , Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     fab.setImageResource(R.drawable.added);
                 }

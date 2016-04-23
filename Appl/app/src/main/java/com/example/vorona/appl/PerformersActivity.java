@@ -65,15 +65,14 @@ public class PerformersActivity extends AppCompatActivity
         retry = (ImageView) findViewById(R.id.retry);
 
         //set initial adapter and layoutManager for recyclerView.
-        RecyclerView rv = (RecyclerView) findViewById(R.id.list_perf);
         rv.setAdapter(new FirstRecyclerAdapter(new ArrayList<Singer>()));
         rv.setLayoutManager(new LinearLayoutManager(rv.getContext()));
 
         //check for saved AsyncTask
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null && downloadTask != null) {
             downloadTask = (GetInfoAsyncTask) getLastCustomNonConfigurationInstance();
             downloadTask.attachActivity(this);
-            downloadTask.onPostExecute(null);
+            downloadTask.onPostExecute(0);
         } else {
             downloadTask = new GetInfoAsyncTask(this);
             downloadTask.execute();
@@ -173,12 +172,12 @@ public class PerformersActivity extends AppCompatActivity
 
         } else if (id == R.id.favs) {
             Intent gr = new Intent(this, DatabaseActivity.class);
-            gr.putExtra("TYPE", "Favorites");
+            gr.putExtra("TYPE", getString(R.string.fav_table));
             startActivity(gr);
             overridePendingTransition(R.anim.from_right, R.anim.to_left);
         } else if (id == R.id.recent) {
             Intent gr = new Intent(this, DatabaseActivity.class);
-            gr.putExtra("TYPE", "Recent");
+            gr.putExtra("TYPE", getString(R.string.recent_table));
             startActivity(gr);
             overridePendingTransition(R.anim.from_right, R.anim.to_left);
         }
