@@ -3,23 +3,30 @@ package com.example.vorona.appl;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.vorona.appl.list.FirstRecyclerAdapter;
 import com.example.vorona.appl.list.PerformerSelectedListener;
@@ -41,6 +48,7 @@ public class PerformersActivity extends AppCompatActivity
     private ImageView retry;
 
     private Fragment curFragment;
+    private MusicIntentReceiver myReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +56,7 @@ public class PerformersActivity extends AppCompatActivity
         setContentView(R.layout.activity_performers);
 
         setTitle("Исполнители");
+        myReceiver = new MusicIntentReceiver();
 
         getFragmentManager().addOnBackStackChangedListener(this);
         //Customize toolbar and navigationView
@@ -91,6 +100,8 @@ public class PerformersActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         navigationView.setCheckedItem(R.id.main_activity);
+        IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+        registerReceiver(myReceiver, filter);
         setTitle("Исполнители");
     }
 
@@ -234,6 +245,12 @@ public class PerformersActivity extends AppCompatActivity
         fTrans.commit();
     }
 
+    @Override
+    public void onPause() {
+        unregisterReceiver(myReceiver);
+        super.onPause();
+    }
+
     /**
      * Restart GetInfoAsyncTask
      */
@@ -255,5 +272,26 @@ public class PerformersActivity extends AppCompatActivity
         }
         else
             setTitle("Исполнители");
+    }
+
+    private class MusicIntentReceiver extends BroadcastReceiver {
+        @Override public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
+                int state = intent.getIntExtra("state", -1);
+                switch (state) {
+                    case 0:
+                        Toast.makeText(context, "ooops",
+                                Toast.LENGTH_LONG).show();
+                        break;
+                    case 1:
+                        Toast.makeText(context, "Heeeey",
+                                Toast.LENGTH_LONG).show();
+                        break;
+                    default:
+                        Toast.makeText(context, "WTF?!",
+                                Toast.LENGTH_LONG).show();
+                }
+            }
+        }
     }
 }
