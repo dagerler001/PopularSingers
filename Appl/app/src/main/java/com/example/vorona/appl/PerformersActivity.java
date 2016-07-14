@@ -198,6 +198,24 @@ public class PerformersActivity extends AppCompatActivity
             fTrans.add(R.id.fragment_holder, fragment);
             fTrans.addToBackStack(null);
             fTrans.commit();
+        }  else if (id == R.id.info) {
+            Fragment fragment = new ProgInfoFragment();
+            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+            fTrans.add(R.id.fragment_holder, fragment);
+            fTrans.addToBackStack(null);
+            fTrans.commit();
+        } else if (id == R.id.email) {
+            Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+            String aEmail =  "veda345@yandex.ru" ;
+
+            emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmail);
+
+            emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Popular Siners App");
+
+            emailIntent.setType("plain/text");
+            emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Write your text here.");
+
+            startActivity(Intent.createChooser(emailIntent, "Send your email in:"));
         }
         return true;
     }
@@ -230,6 +248,8 @@ public class PerformersActivity extends AppCompatActivity
             curFragment = getFragmentManager().findFragmentById(R.id.fragment_holder);
             if (curFragment instanceof ListFragment)
                 setTitle(((ListFragment) curFragment).getTitle());
+            else if (curFragment instanceof ProgInfoFragment)
+                setTitle("О программе");
             else
                 setTitle("Исполнители");
         }

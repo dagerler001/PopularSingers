@@ -8,6 +8,10 @@
             android:title="" />
         <item android:id="@+id/recent" android:icon="@drawable/recent"
             android:title="" />
+        <item android:id="@+id/email" android:icon="@drawable/ic_mail"
+            android:title="" />
+        <item android:id="@+id/info" android:icon="@drawable/ic_info"
+            android:title="" />
     </group>
 
 </menu>
