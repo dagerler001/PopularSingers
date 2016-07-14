@@ -1,5 +1,8 @@
 package com.example.vorona.appl;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -27,7 +30,7 @@ import java.util.ArrayList;
  * Start Activity with list of performers
  */
 public class PerformersActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, PerformerSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, PerformerSelectedListener, FragmentManager.OnBackStackChangedListener {
 
     private GetInfoAsyncTask downloadTask;
     private NavigationView navigationView;
@@ -35,14 +38,18 @@ public class PerformersActivity extends AppCompatActivity
     private TextView title;
     private RecyclerView rv;
     private ProgressBar p_bar;
-    private Typeface face;
     private ImageView retry;
+
+    private Fragment curFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_performers);
 
+        setTitle("Исполнители");
+
+        getFragmentManager().addOnBackStackChangedListener(this);
         //Customize toolbar and navigationView
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -60,7 +67,7 @@ public class PerformersActivity extends AppCompatActivity
         title = (TextView) findViewById(R.id.txt_perf);
         rv = (RecyclerView) findViewById(R.id.list_perf);
         p_bar = (ProgressBar) findViewById(R.id.progress_perf);
-        face = Typeface.createFromAsset(title.getContext().getAssets(), "fonts/Elbing.otf");
+        Typeface face = Typeface.createFromAsset(title.getContext().getAssets(), "fonts/Elbing.otf");
         title.setTypeface(face);
         retry = (ImageView) findViewById(R.id.retry);
 
@@ -77,12 +84,14 @@ public class PerformersActivity extends AppCompatActivity
             downloadTask = new GetInfoAsyncTask(this);
             downloadTask.execute();
         }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         navigationView.setCheckedItem(R.id.main_activity);
+        setTitle("Исполнители");
     }
 
     /**
@@ -120,7 +129,8 @@ public class PerformersActivity extends AppCompatActivity
                 retry.setVisibility(View.INVISIBLE);
                 title.setText(R.string.txt_empty);
                 break;
-            default: break;
+            default:
+                break;
         }
 
     }
@@ -128,6 +138,7 @@ public class PerformersActivity extends AppCompatActivity
     /**
      * Will continue current DatabaseAsyncTask on restart of activity.
      * Don't save if error occurred during download.
+     *
      * @return current DatabaseAsyncTask
      */
     @Override
@@ -146,7 +157,10 @@ public class PerformersActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if (getFragmentManager().getBackStackEntryCount() == 0)
+                super.onBackPressed();
+            else
+                getFragmentManager().popBackStack();
         }
     }
 
@@ -160,44 +174,46 @@ public class PerformersActivity extends AppCompatActivity
         return true;
     }
 
-    /**
-     * Open selected activity. If selected activity and current activity are the same won't do anything.
-     */
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        if (id == R.id.main_activity) {
-
-        } else if (id == R.id.favs) {
-            Intent gr = new Intent(this, DatabaseActivity.class);
-            gr.putExtra("TYPE", getString(R.string.fav_table));
-            startActivity(gr);
-            overridePendingTransition(R.anim.from_right, R.anim.to_left);
-        } else if (id == R.id.recent) {
-            Intent gr = new Intent(this, DatabaseActivity.class);
-            gr.putExtra("TYPE", getString(R.string.recent_table));
-            startActivity(gr);
-            overridePendingTransition(R.anim.from_right, R.anim.to_left);
-        }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+        if (id == R.id.main_activity) {
+            int cnt = getFragmentManager().getBackStackEntryCount();
+            for (int i = 0; i < cnt; i++)
+                getFragmentManager().popBackStack();
+            setTitle("Исполнители");
+            recreate();
+        } else if (id == R.id.favs) {
+            Fragment fragment = ListFragment.newInstance(getString(R.string.fav_table));
+            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+            fTrans.add(R.id.fragment_holder, fragment);
+            fTrans.addToBackStack(null);
+            fTrans.commit();
+        } else if (id == R.id.recent) {
+            Fragment fragment = ListFragment.newInstance(getString(R.string.recent_table));
+            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+            fTrans.add(R.id.fragment_holder, fragment);
+            fTrans.addToBackStack(null);
+            fTrans.commit();
+        }
         return true;
     }
 
     /**
      * Open new activity with full information about selected performer.
+     *
      * @param singer selected in RecycleView singer
      */
     @Override
     public void onPerformerSelected(Singer singer) {
-        Intent gr = new Intent(this, FullInfoActivity.class);
-        gr.putExtra("SINGER", singer);
-        startActivity(gr);
-        overridePendingTransition(R.anim.from_right, R.anim.to_left);
-
+        Fragment fragment = FullInfoFragment.newInstance(singer);
+        FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+        fTrans.add(R.id.fragment_holder, fragment);
+        fTrans.addToBackStack(null);
+        fTrans.commit();
     }
 
     /**
@@ -206,5 +222,18 @@ public class PerformersActivity extends AppCompatActivity
     public void onRetryClick(View view) {
         downloadTask = new GetInfoAsyncTask(this);
         downloadTask.execute();
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        if (getFragmentManager().getBackStackEntryCount() > 0) {
+            curFragment = getFragmentManager().findFragmentById(R.id.fragment_holder);
+            if (curFragment instanceof ListFragment)
+                setTitle(((ListFragment) curFragment).getTitle());
+            else
+                setTitle("Исполнители");
+        }
+        else
+            setTitle("Исполнители");
     }
 }

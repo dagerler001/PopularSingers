@@ -21,24 +21,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".FullInfoActivity"
-            android:label=""
-            android:parentActivityName=".PerformersActivity"
-            android:theme="@style/AppTheme.NoActionBar" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.vorona.appl.PerformersActivity" />
-        </activity>
-        <activity
-            android:name=".DatabaseActivity"
-            android:label=""
-            android:parentActivityName=".PerformersActivity"
-            android:theme="@style/AppTheme.NoActionBar" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.vorona.appl.PerformersActivity" />
-        </activity>
     </application>
 
 </manifest>

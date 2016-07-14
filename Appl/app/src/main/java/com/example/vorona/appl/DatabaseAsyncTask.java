@@ -1,5 +1,6 @@
 package com.example.vorona.appl;
 
+import android.app.Application;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -25,7 +26,7 @@ public class DatabaseAsyncTask extends AsyncTask<String, Void, Void> {
     /**
      * Activity attached to concrete DatabaseAsyncTask
      */
-    protected DatabaseActivity activity;
+    protected ListFragment fragment;
 
     /**
      * Data from database.
@@ -46,22 +47,22 @@ public class DatabaseAsyncTask extends AsyncTask<String, Void, Void> {
 
     /**
      * Create an instance of DatabaseAsyncTask and attach related activity
-     * @param activity activity on which DatabaseAsyncTask was called
+     * @param fragment fragment on which DatabaseAsyncTask was called
      */
-    public DatabaseAsyncTask(DatabaseActivity activity) {
-        this.activity = activity;
+    public DatabaseAsyncTask(ListFragment fragment) {
+        this.fragment = fragment;
         singerList = new ArrayList<>();
         state = DownloadState.DOWNLOADING;
-        activity.updateView(this);
+        fragment.updateView(this);
     }
 
     /**
-     * Attach related activity
-     * @param activity activity on which DatabaseAsyncTask was called
+     * Attach related fragment
+     * @param fragment fragment on which DatabaseAsyncTask was called
      */
-    public void attachActivity(DatabaseActivity activity) {
-        this.activity = activity;
-        activity.updateView(this);
+    public void attachFragment(ListFragment fragment) {
+        this.fragment = fragment;
+        fragment.updateView(this);
     }
 
     /**
@@ -79,7 +80,7 @@ public class DatabaseAsyncTask extends AsyncTask<String, Void, Void> {
     protected Void doInBackground(String... params) {
         Log.w(LOG_TAG, "Started Async Task");
         try {
-            dbHelper = new DBHelper(activity);
+            dbHelper = new DBHelper(fragment.getActivity());
             singerList = getFromDatabase(params[0]);
             if (singerList.size() > 0) {
                 state = DownloadState.DONE;
@@ -103,10 +104,10 @@ public class DatabaseAsyncTask extends AsyncTask<String, Void, Void> {
      */
     @Override
     protected void onPostExecute(Void vi) {
-        activity.updateView(this);
+        fragment.updateView(this);
         Log.w(LOG_TAG, "Finished Async Task");
 
-        RecyclerView rv = (RecyclerView) activity.findViewById(R.id.list_d);
+        RecyclerView rv = (RecyclerView) fragment.getView().findViewById(R.id.list_d);
 
         ArrayList<Singer> list = new ArrayList<>();
         list.addAll(singerList);
@@ -120,10 +121,10 @@ public class DatabaseAsyncTask extends AsyncTask<String, Void, Void> {
 
     protected void setListener(RecyclerView rv, RecyclerAdapter adapter) {
         rv.setHasFixedSize(true);
-        int cnt = (activity.getResources().getConfiguration().orientation ==  Configuration.ORIENTATION_LANDSCAPE ? 3 : 2);
+        int cnt = (fragment.getResources().getConfiguration().orientation ==  Configuration.ORIENTATION_LANDSCAPE ? 3 : 2);
         StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(cnt, StaggeredGridLayoutManager.VERTICAL);
         rv.setLayoutManager(mLayoutManager);
-        adapter.setPerformerSelectedListener(activity);
+        adapter.setPerformerSelectedListener(fragment);
         rv.setAdapter(adapter);
     }
 

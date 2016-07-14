@@ -17,5 +17,4 @@
 
     <include layout="@layout/content_performers" />
 
-
 </android.support.design.widget.CoordinatorLayout>
