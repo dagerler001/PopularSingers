@@ -5,7 +5,6 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Typeface;
@@ -14,12 +13,10 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,15 +36,8 @@ import java.util.ArrayList;
 public class PerformersActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, PerformerSelectedListener, FragmentManager.OnBackStackChangedListener {
 
-    private GetInfoAsyncTask downloadTask;
     private NavigationView navigationView;
 
-    private TextView title;
-    private RecyclerView rv;
-    private ProgressBar p_bar;
-    private ImageView retry;
-
-    private Fragment curFragment;
     private MusicIntentReceiver myReceiver;
 
     @Override
@@ -73,27 +63,11 @@ public class PerformersActivity extends AppCompatActivity
         navigationView.setCheckedItem(R.id.main_activity);
         navigationView.setNavigationItemSelectedListener(this);
 
-        title = (TextView) findViewById(R.id.txt_perf);
-        rv = (RecyclerView) findViewById(R.id.list_perf);
-        p_bar = (ProgressBar) findViewById(R.id.progress_perf);
-        Typeface face = Typeface.createFromAsset(title.getContext().getAssets(), "fonts/Elbing.otf");
-        title.setTypeface(face);
-        retry = (ImageView) findViewById(R.id.retry);
-
-        //set initial adapter and layoutManager for recyclerView.
-        rv.setAdapter(new FirstRecyclerAdapter(new ArrayList<Singer>()));
-        rv.setLayoutManager(new LinearLayoutManager(rv.getContext()));
-
-        //check for saved AsyncTask
-        if (savedInstanceState != null && downloadTask != null) {
-            downloadTask = (GetInfoAsyncTask) getLastCustomNonConfigurationInstance();
-            downloadTask.attachActivity(this);
-            downloadTask.onPostExecute(0);
-        } else {
-            downloadTask = new GetInfoAsyncTask(this);
-            downloadTask.execute();
-        }
-
+        Fragment fragment = ListFragment.newInstance("Performers");
+        FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+        fTrans.add(R.id.fragment_holder, fragment);
+        fTrans.addToBackStack(null);
+        fTrans.commit();
     }
 
     @Override
@@ -102,65 +76,10 @@ public class PerformersActivity extends AppCompatActivity
         navigationView.setCheckedItem(R.id.main_activity);
         IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
         registerReceiver(myReceiver, filter);
-        setTitle("Исполнители");
     }
 
     /**
-     * Show loading bar while getting data.
-     * Hide when download is finished. If an error occurred during download textView and retry button are shown.
-     * Otherwise recyclerView is shown.
-     *
-     * @param task GetInfoAsyncTask which is working at the moment
-     */
-    void updateView(GetInfoAsyncTask task) {
-        switch (task.getState()) {
-            case DOWNLOADING:
-                p_bar.setVisibility(View.VISIBLE);
-                rv.setVisibility(View.INVISIBLE);
-                title.setVisibility(View.INVISIBLE);
-                retry.setVisibility(View.INVISIBLE);
-                break;
-            case DONE:
-                p_bar.setVisibility(View.INVISIBLE);
-                rv.setVisibility(View.VISIBLE);
-                title.setVisibility(View.INVISIBLE);
-                retry.setVisibility(View.INVISIBLE);
-                break;
-            case ERROR:
-                p_bar.setVisibility(View.INVISIBLE);
-                rv.setVisibility(View.INVISIBLE);
-                title.setVisibility(View.VISIBLE);
-                title.setText(R.string.txt_error);
-                retry.setVisibility(View.VISIBLE);
-                break;
-            case EMPTY:
-                p_bar.setVisibility(View.INVISIBLE);
-                rv.setVisibility(View.INVISIBLE);
-                title.setVisibility(View.VISIBLE);
-                retry.setVisibility(View.INVISIBLE);
-                title.setText(R.string.txt_empty);
-                break;
-            default:
-                break;
-        }
-
-    }
-
-    /**
-     * Will continue current DatabaseAsyncTask on restart of activity.
-     * Don't save if error occurred during download.
-     *
-     * @return current DatabaseAsyncTask
-     */
-    @Override
-    public Object onRetainCustomNonConfigurationInstance() {
-        if (downloadTask.getState() == DownloadState.ERROR)
-            return null;
-        return downloadTask;
-    }
-
-    /**
-     * Kill current activity when pressed back button
+     * Kill current fragment when pressed back button
      */
     @Override
     public void onBackPressed() {
@@ -168,7 +87,7 @@ public class PerformersActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            if (getFragmentManager().getBackStackEntryCount() == 0)
+            if (getFragmentManager().getBackStackEntryCount() <= 1)
                 super.onBackPressed();
             else
                 getFragmentManager().popBackStack();
@@ -195,8 +114,11 @@ public class PerformersActivity extends AppCompatActivity
             int cnt = getFragmentManager().getBackStackEntryCount();
             for (int i = 0; i < cnt; i++)
                 getFragmentManager().popBackStack();
-            setTitle("Исполнители");
-            recreate();
+            Fragment fragment = ListFragment.newInstance("Performers");
+            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+            fTrans.add(R.id.fragment_holder, fragment);
+            fTrans.addToBackStack(null);
+            fTrans.commit();
         } else if (id == R.id.favs) {
             Fragment fragment = ListFragment.newInstance(getString(R.string.fav_table));
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
@@ -251,18 +173,10 @@ public class PerformersActivity extends AppCompatActivity
         super.onPause();
     }
 
-    /**
-     * Restart GetInfoAsyncTask
-     */
-    public void onRetryClick(View view) {
-        downloadTask = new GetInfoAsyncTask(this);
-        downloadTask.execute();
-    }
-
     @Override
     public void onBackStackChanged() {
         if (getFragmentManager().getBackStackEntryCount() > 0) {
-            curFragment = getFragmentManager().findFragmentById(R.id.fragment_holder);
+            Fragment curFragment = getFragmentManager().findFragmentById(R.id.fragment_holder);
             if (curFragment instanceof ListFragment)
                 setTitle(((ListFragment) curFragment).getTitle());
             else if (curFragment instanceof ProgInfoFragment)

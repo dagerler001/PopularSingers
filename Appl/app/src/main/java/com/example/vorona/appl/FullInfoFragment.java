@@ -159,13 +159,6 @@ public class FullInfoFragment extends Fragment{
     private ContentValues createCV(Singer singer) {
         ContentValues cv = new ContentValues();
         cv.put("id", singer.getId());
-        cv.put("name", singer.getName());
-        cv.put("bio", singer.getBio());
-        cv.put("albums", singer.getAlbums());
-        cv.put("tracks", singer.getTracks());
-        cv.put("cover", singer.getCover_big());
-        cv.put("genres", singer.getGenres());
-        cv.put("cover_small", singer.getCover_small());
         return cv;
     }
 }

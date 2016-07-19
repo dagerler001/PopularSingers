@@ -18,19 +18,17 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        db.execSQL("create table Favorites ("
+        db.execSQL("create table Favourites ("
                 + "local_id integer primary key autoincrement,"
-                + "id integer,"
-                + "name text,"
-                + "bio text,"
-                + "albums integer,"
-                + "tracks integer,"
-                + "cover text,"
-                + "genres text,"
-                + "cover_small text"
+                + "id integer"
                 +");");
 
         db.execSQL("create table Recent ("
+                + "local_id integer primary key autoincrement,"
+                + "id integer"
+                +");");
+
+        db.execSQL("create table Performers ("
                 + "local_id integer primary key autoincrement,"
                 + "id integer,"
                 + "name text,"

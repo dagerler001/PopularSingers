@@ -70,6 +70,7 @@ public class FirstRecyclerAdapter extends RecyclerAdapter implements Animation.A
      */
     @Override
     public int getItemCount() {
+        if (singers == null) return 0;
         return singers.size();
     }
 

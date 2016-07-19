@@ -2,9 +2,12 @@ package com.example.vorona.appl;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -14,6 +17,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,16 +25,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.vorona.appl.list.FirstRecyclerAdapter;
 import com.example.vorona.appl.list.PerformerSelectedListener;
+import com.example.vorona.appl.list.RecyclerAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class ListFragment extends Fragment implements PerformerSelectedListener{
+public class ListFragment extends Fragment implements PerformerSelectedListener,
+        LoaderManager.LoaderCallbacks<List<Singer>> {
 
     private RecyclerView rv;
     private ProgressBar p_bar;
@@ -45,7 +53,7 @@ public class ListFragment extends Fragment implements PerformerSelectedListener{
         return fragment;
     }
 
-    public String getTitle(){
+    public String getTitle() {
         return type;
     }
 
@@ -82,14 +90,9 @@ public class ListFragment extends Fragment implements PerformerSelectedListener{
         rv.setAdapter(new FirstRecyclerAdapter(new ArrayList<Singer>()));
         rv.setLayoutManager(new LinearLayoutManager(rv.getContext()));
 
-        DatabaseAsyncTask databaseAsyncTask;
-        if (type.equals(getString(R.string.recent_table))) {
-            databaseAsyncTask = new DatabaseAsyncTask(this);
-            databaseAsyncTask.execute(getString(R.string.recent_table));
-        } else {
-            databaseAsyncTask = new DatabaseAsyncTask(this);
-            databaseAsyncTask.execute(getString(R.string.fav_table));
-        }
+        Bundle arg = new Bundle();
+        arg.putString("Table", type);
+        getLoaderManager().initLoader(0, arg, this);
     }
 
     /**
@@ -97,10 +100,10 @@ public class ListFragment extends Fragment implements PerformerSelectedListener{
      * Hide when download is finished. If an error occurred during download textView is shown.
      * Otherwise recyclerView is shown.
      *
-     * @param task DatabaseAsyncTask which is working at the moment
+     * @param state DatabaseAsyncTask which is working at the moment
      */
-    protected void updateView(DatabaseAsyncTask task) {
-        switch (task.getState()) {
+    protected void updateView(DownloadState state) {
+        switch (state) {
             case DOWNLOADING:
                 p_bar.setVisibility(View.VISIBLE);
                 rv.setVisibility(View.INVISIBLE);
@@ -122,13 +125,18 @@ public class ListFragment extends Fragment implements PerformerSelectedListener{
                 rv.setVisibility(View.INVISIBLE);
                 title.setVisibility(View.VISIBLE);
                 title.setText(R.string.txt_empty);
+                if (type.equals("Performers")) {
+                    getLoaderManager().initLoader(0, null, this);
+                }
                 break;
-            default: break;
+            default:
+                break;
         }
     }
 
     /**
      * Open new activity with full information about selected performer.
+     *
      * @param singer selected in RecycleView singer
      */
     @Override
@@ -138,5 +146,39 @@ public class ListFragment extends Fragment implements PerformerSelectedListener{
         fTrans.add(R.id.fragment_holder, fragment);
         fTrans.addToBackStack(null);
         fTrans.commit();
+    }
+
+    @Override
+    public Loader<List<Singer>> onCreateLoader(int id, Bundle args) {
+        if (args != null) {
+            return new DatabaseLoader(getActivity(), args);
+        }
+        return new JsonLoader(getActivity());
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Singer>> loader, List<Singer> data) {
+        if (data == null || data.size() == 0)
+            if (loader instanceof JsonLoader)
+                updateView(DownloadState.ERROR);
+            else updateView(DownloadState.EMPTY);
+        else
+            updateView(DownloadState.DONE);
+        FirstRecyclerAdapter mAdapter = new FirstRecyclerAdapter(data);
+        setListener(rv, mAdapter);
+    }
+
+    private void setListener(RecyclerView rv, RecyclerAdapter adapter) {
+        rv.setHasFixedSize(true);
+        int cnt = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2);
+        StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(cnt, StaggeredGridLayoutManager.VERTICAL);
+        rv.setLayoutManager(mLayoutManager);
+        adapter.setPerformerSelectedListener(this);
+        rv.setAdapter(adapter);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Singer>> loader) {
+        rv.setAdapter(new FirstRecyclerAdapter(null));
     }
 }
