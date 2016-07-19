@@ -1,20 +1,11 @@
 package com.example.vorona.appl;
 
 import android.content.AsyncTaskLoader;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.JsonReader;
-import android.util.Log;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,10 +14,10 @@ import java.util.List;
  */
 
 public class DatabaseLoader extends AsyncTaskLoader<List<Singer>> {
+    //    private final String LOG_TAG = "DatabaseLoader";
+    String table;
     private List<Singer> singerList;
     private DBHelper dbHelper;
-    private final String LOG_TAG = "DatabaseLoader";
-    String table;
 
     public DatabaseLoader(Context context, Bundle args) {
         super(context);
@@ -41,12 +32,12 @@ public class DatabaseLoader extends AsyncTaskLoader<List<Singer>> {
      */
     @Override public List<Singer> loadInBackground() {
         try {
-            Log.w(LOG_TAG, "Loading from the database");
+//            Log.w(LOG_TAG, "Loading from the database");
             dbHelper = new DBHelper(getContext());
             singerList = new ArrayList<>();
             return getFromDatabase(table);
         } catch (Exception e) {
-            Log.w(LOG_TAG, "We got exception during download from database");
+//            Log.w(LOG_TAG, "We got exception during download from database");
             e.printStackTrace();
             return null;
         }

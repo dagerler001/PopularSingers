@@ -3,13 +3,9 @@ package com.example.vorona.appl;
 import android.content.AsyncTaskLoader;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Loader;
-import android.content.pm.PackageManager;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
 import android.util.JsonReader;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +34,7 @@ public class JsonLoader extends AsyncTaskLoader<List<Singer>> {
      */
     @Override public List<Singer> loadInBackground() {
         try {
-            Log.w("Loader", "Loading from the net");
+//            Log.w("Loader", "Loading from the net");
             singers = getSinger();
             if (singers != null) {
                 DBHelper dbHelper = new DBHelper(getContext());
@@ -55,7 +51,7 @@ public class JsonLoader extends AsyncTaskLoader<List<Singer>> {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.w("Loader", "We got exception during download");
+//            Log.w("Loader", "We got exception during download");
             return null;
         }
         return singers;
