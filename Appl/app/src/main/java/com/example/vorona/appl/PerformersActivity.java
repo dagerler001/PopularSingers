@@ -139,11 +139,11 @@ public class PerformersActivity extends AppCompatActivity
             fTrans.commit();
         } else if (id == R.id.email) {
             Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-            String aEmail =  "veda345@yandex.ru" ;
+            String aEmail =  "veda345@yandex.ru";
 
             emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmail);
 
-            emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Popular Siners App");
+            emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Popular Singers App");
 
             emailIntent.setType("plain/text");
             emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Write your text here.");

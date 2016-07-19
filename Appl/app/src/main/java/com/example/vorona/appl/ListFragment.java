@@ -10,11 +10,13 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -44,6 +46,8 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
     private ProgressBar p_bar;
     private TextView title;
     private String type = "";
+    final String MANAGER = "Manager";
+    private RecyclerView.LayoutManager layoutManager;
 
     public static ListFragment newInstance(String t) {
         Bundle args = new Bundle();
@@ -58,10 +62,22 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getActivity().setTitle(type);
-        return inflater.inflate(R.layout.fragment_list, null);
+        View rootView = inflater.inflate(R.layout.fragment_list, container, false);
+        title = (TextView) rootView.findViewById(R.id.no_d);
+        rv = (RecyclerView) rootView.findViewById(R.id.list_d);
+        p_bar = (ProgressBar) rootView.findViewById(R.id.progress_d);
+        Typeface face = Typeface.createFromAsset(title.getContext().getAssets(), "fonts/Elbing.otf");
+        title.setTypeface(face);
+
+        setRecyclerViewLayoutManager();
+
+        rv.setAdapter(new FirstRecyclerAdapter(null));
+        Bundle arg = new Bundle();
+        arg.putString("Table", type);
+        getLoaderManager().initLoader(0, arg, this);
+        return rootView;
     }
 
     @Override
@@ -69,30 +85,6 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
         super.onCreate(savedInstanceState);
         type = getArguments().getString("Type");
         setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        getActivity().setTitle(type);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-
-        title = (TextView) view.findViewById(R.id.no_d);
-        rv = (RecyclerView) view.findViewById(R.id.list_d);
-        p_bar = (ProgressBar) view.findViewById(R.id.progress_d);
-        Typeface face = Typeface.createFromAsset(title.getContext().getAssets(), "fonts/Elbing.otf");
-        title.setTypeface(face);
-
-        //set initial adapter and layoutManager for recyclerView.
-        rv.setAdapter(new FirstRecyclerAdapter(new ArrayList<Singer>()));
-        rv.setLayoutManager(new LinearLayoutManager(rv.getContext()));
-
-        Bundle arg = new Bundle();
-        arg.putString("Table", type);
-        getLoaderManager().initLoader(0, arg, this);
     }
 
     /**
@@ -134,6 +126,32 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+//        rv.getLayoutManager().onSaveInstanceState();
+        state.putParcelable(MANAGER, rv.getLayoutManager().onSaveInstanceState());
+        super.onSaveInstanceState(state);
+        // Save list state
+//        state.putParcelable(MANAGER, rv.getLayoutManager().onSaveInstanceState());
+    }
+
+
+    public void setRecyclerViewLayoutManager() {
+        int scrollPosition = 0;
+
+        // If a layout manager has already been set, get current scroll position.
+        if (rv.getLayoutManager() != null) {
+            scrollPosition = ((GridLayoutManager) rv.getLayoutManager())
+                    .findFirstCompletelyVisibleItemPosition();
+        }
+
+        int cnt = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2);
+        layoutManager = new StaggeredGridLayoutManager(cnt, StaggeredGridLayoutManager.VERTICAL);
+
+        rv.setLayoutManager(layoutManager);
+        rv.scrollToPosition(scrollPosition);
+    }
+
     /**
      * Open new activity with full information about selected performer.
      *
@@ -165,20 +183,13 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
         else
             updateView(DownloadState.DONE);
         FirstRecyclerAdapter mAdapter = new FirstRecyclerAdapter(data);
-        setListener(rv, mAdapter);
+        mAdapter.setPerformerSelectedListener(this);
+        rv.setAdapter(mAdapter);
     }
 
-    private void setListener(RecyclerView rv, RecyclerAdapter adapter) {
-        rv.setHasFixedSize(true);
-        int cnt = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2);
-        StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(cnt, StaggeredGridLayoutManager.VERTICAL);
-        rv.setLayoutManager(mLayoutManager);
-        adapter.setPerformerSelectedListener(this);
-        rv.setAdapter(adapter);
-    }
 
     @Override
     public void onLoaderReset(Loader<List<Singer>> loader) {
-        rv.setAdapter(new FirstRecyclerAdapter(null));
+//        rv.setAdapter(new FirstRecyclerAdapter(null));
     }
 }
