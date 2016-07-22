@@ -3,51 +3,33 @@ package com.example.vorona.appl;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.LoaderManager;
-import android.content.Context;
-import android.content.Intent;
 import android.content.Loader;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.vorona.appl.list.FirstRecyclerAdapter;
 import com.example.vorona.appl.list.PerformerSelectedListener;
-import com.example.vorona.appl.list.RecyclerAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ListFragment extends Fragment implements PerformerSelectedListener,
         LoaderManager.LoaderCallbacks<List<Singer>> {
 
+    final String POSITION = "Position";
     private RecyclerView rv;
     private ProgressBar p_bar;
     private TextView title;
     private String type = "";
-    final String MANAGER = "Manager";
     private RecyclerView.LayoutManager layoutManager;
+    private int position;
 
     public static ListFragment newInstance(String t) {
         Bundle args = new Bundle();
@@ -71,12 +53,8 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
         Typeface face = Typeface.createFromAsset(title.getContext().getAssets(), "fonts/Elbing.otf");
         title.setTypeface(face);
 
-        setRecyclerViewLayoutManager();
-
         rv.setAdapter(new FirstRecyclerAdapter(null));
-        Bundle arg = new Bundle();
-        arg.putString("Table", type);
-        getLoaderManager().initLoader(0, arg, this);
+        setRecyclerViewLayoutManager(savedInstanceState);
         return rootView;
     }
 
@@ -85,6 +63,16 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
         super.onCreate(savedInstanceState);
         type = getArguments().getString("Type");
         setHasOptionsMenu(true);
+
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Bundle arg = new Bundle();
+        arg.putString("Table", type);
+        getLoaderManager().initLoader(0, arg, this);
+
     }
 
     /**
@@ -118,7 +106,7 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
                 title.setVisibility(View.VISIBLE);
                 title.setText(R.string.txt_empty);
                 if (type.equals("Performers")) {
-                    getLoaderManager().initLoader(0, null, this);
+                    getLoaderManager().restartLoader(0, null, this);
                 }
                 break;
             default:
@@ -128,28 +116,28 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-//        rv.getLayoutManager().onSaveInstanceState();
-        state.putParcelable(MANAGER, rv.getLayoutManager().onSaveInstanceState());
+        RecyclerView.LayoutManager layoutManager = rv.getLayoutManager();
+        if (layoutManager != null) {
+            int pos = -1;
+            if (layoutManager instanceof GridLayoutManager) {
+                pos = ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition();
+            }
+            state.putInt(POSITION, pos);
+        }
         super.onSaveInstanceState(state);
-        // Save list state
-//        state.putParcelable(MANAGER, rv.getLayoutManager().onSaveInstanceState());
     }
 
 
-    public void setRecyclerViewLayoutManager() {
+    public void setRecyclerViewLayoutManager(Bundle savedInstanceState) {
         int scrollPosition = 0;
-
-        // If a layout manager has already been set, get current scroll position.
-        if (rv.getLayoutManager() != null) {
-            scrollPosition = ((GridLayoutManager) rv.getLayoutManager())
-                    .findFirstCompletelyVisibleItemPosition();
+        if (savedInstanceState != null) {
+            scrollPosition = savedInstanceState.getInt(POSITION);
         }
-
+        position = scrollPosition;
         int cnt = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2);
-        layoutManager = new StaggeredGridLayoutManager(cnt, StaggeredGridLayoutManager.VERTICAL);
-
+        layoutManager = new GridLayoutManager(getActivity(), cnt);
         rv.setLayoutManager(layoutManager);
-        rv.scrollToPosition(scrollPosition);
+//        rv.scrollToPosition(scrollPosition);
     }
 
     /**
@@ -185,6 +173,7 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
         FirstRecyclerAdapter mAdapter = new FirstRecyclerAdapter(data);
         mAdapter.setPerformerSelectedListener(this);
         rv.setAdapter(mAdapter);
+        rv.scrollToPosition(position);
     }
 
 

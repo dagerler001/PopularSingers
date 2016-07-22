@@ -3,7 +3,6 @@ package com.example.vorona.appl;
 import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,24 +10,16 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.vorona.appl.list.FirstRecyclerAdapter;
-import com.example.vorona.appl.list.PerformerSelectedListener;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-
-public class FullInfoFragment extends Fragment{
+public class FullInfoFragment extends Fragment {
 
     /**
      * Helper for database access.
@@ -85,7 +76,7 @@ public class FullInfoFragment extends Fragment{
                             .setAction("Action", null).show();
                     fab.setImageResource(R.drawable.star);
                 } else {
-                    Snackbar.make(view, getString(R.string.added) , Snackbar.LENGTH_LONG)
+                    Snackbar.make(view, getString(R.string.added), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     fab.setImageResource(R.drawable.added);
                 }
@@ -130,7 +121,7 @@ public class FullInfoFragment extends Fragment{
         boolean added = false;
         if (cursor.moveToFirst()) {
             db.delete(table, "id='" + singer.getId() + "'", null);
-        } else  {
+        } else {
             try {
                 db.insertOrThrow(table, null, createCV(singer));
                 added = true;
@@ -148,9 +139,12 @@ public class FullInfoFragment extends Fragment{
      */
     private boolean checkInTable(String table, Singer singer) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM " + table + " WHERE id=" + singer.getId(), null)) {
-            return cursor.moveToFirst();
-        }
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + table + " WHERE id=" + singer.getId(), null);
+        boolean f = cursor.moveToFirst();
+        cursor.close();
+        return f;
+
     }
 
     /**

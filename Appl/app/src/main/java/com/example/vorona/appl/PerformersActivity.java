@@ -7,28 +7,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.vorona.appl.list.FirstRecyclerAdapter;
 import com.example.vorona.appl.list.PerformerSelectedListener;
-
-import java.util.ArrayList;
 
 /**
  * Start Activity with list of performers
@@ -63,11 +53,13 @@ public class PerformersActivity extends AppCompatActivity
         navigationView.setCheckedItem(R.id.main_activity);
         navigationView.setNavigationItemSelectedListener(this);
 
-        Fragment fragment = ListFragment.newInstance("Performers");
-        FragmentTransaction fTrans = getFragmentManager().beginTransaction();
-        fTrans.add(R.id.fragment_holder, fragment);
-        fTrans.addToBackStack(null);
-        fTrans.commit();
+        if (getFragmentManager().findFragmentById(R.id.fragment_holder) == null) {
+            Fragment fragment = ListFragment.newInstance("Performers");
+            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+            fTrans.add(R.id.fragment_holder, fragment);
+            fTrans.addToBackStack(null);
+            fTrans.commit();
+        }
     }
 
     @Override
