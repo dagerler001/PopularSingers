@@ -29,4 +29,12 @@
     Раздел Recent покажет последние просмотренные страницы. \n
     По вопросам о работе приложения можете обращаться по адресу, указанному в разделе Обратная связь.</string>
 
+    <string name="plugged">Наушники подключены</string>
+    <string name="music_package">ru.yandex.music</string>
+    <string name="radio_package">ru.yandex.radio</string>
+    <string name="yandex_music">Яндекс.Музыка</string>
+    <string name="yandex_radio">Яндекс.Радио</string>
+    <string name="open">Открыть </string>
+    <string name="install">Установить </string>
+
 </resources>

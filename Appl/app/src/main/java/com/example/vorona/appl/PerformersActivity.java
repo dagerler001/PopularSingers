@@ -3,12 +3,16 @@ package com.example.vorona.appl;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,13 +22,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.example.vorona.appl.list.PerformerSelectedListener;
-
 /**
  * Start Activity with list of performers
  */
 public class PerformersActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, PerformerSelectedListener, FragmentManager.OnBackStackChangedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, FragmentManager.OnBackStackChangedListener {
 
     private NavigationView navigationView;
 
@@ -145,19 +147,6 @@ public class PerformersActivity extends AppCompatActivity
         return true;
     }
 
-    /**
-     * Open new activity with full information about selected performer.
-     *
-     * @param singer selected in RecycleView singer
-     */
-    @Override
-    public void onPerformerSelected(Singer singer) {
-        Fragment fragment = FullInfoFragment.newInstance(singer);
-        FragmentTransaction fTrans = getFragmentManager().beginTransaction();
-        fTrans.add(R.id.fragment_holder, fragment);
-        fTrans.addToBackStack(null);
-        fTrans.commit();
-    }
 
     @Override
     public void onPause() {
@@ -180,18 +169,46 @@ public class PerformersActivity extends AppCompatActivity
             setTitle("Исполнители");
     }
 
+    private void show(String notificationText, String installText, int notificationId) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_music)
+                .setContentTitle(getString(R.string.plugged))
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        Intent launchIntentMusic = getPackageManager().getLaunchIntentForPackage(getString(R.string.music_package));
+        if (launchIntentMusic == null) {
+            launchIntentMusic = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getString(R.string.music_package)));
+            builder.setContentText(installText);
+        } else {
+            builder.setContentText(notificationText);
+        }
+        Intent launchIntentRadio = getPackageManager().getLaunchIntentForPackage(getString(R.string.radio_package));
+        if (launchIntentRadio == null) {
+            launchIntentRadio = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getString(R.string.radio_package)));
+            builder.setContentText(installText);
+        } else {
+            builder.setContentText(notificationText);
+        }
+        builder.addAction(R.drawable.yandex_music, getString(R.string.yandex_music), PendingIntent.getActivity(this, 1, launchIntentMusic, 0));
+        builder.addAction(R.drawable.yandex_radio, getString(R.string.yandex_radio), PendingIntent.getActivity(this, 2, launchIntentRadio, 0));
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(notificationId, builder.build());
+    }
+
     private class MusicIntentReceiver extends BroadcastReceiver {
         @Override public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
                 int state = intent.getIntExtra("state", -1);
                 switch (state) {
                     case 0:
-                        Toast.makeText(context, "ooops",
-                                Toast.LENGTH_LONG).show();
+//                        Toast.makeText(context, "ooops",
+//                                Toast.LENGTH_LONG).show();
+
                         break;
                     case 1:
-                        Toast.makeText(context, "Heeeey",
-                                Toast.LENGTH_LONG).show();
+//                        Toast.makeText(context, "Heeeey",
+//                                Toast.LENGTH_LONG).show();
+                        show(getString(R.string.open), getString(R.string.install), 1);
                         break;
                     default:
                         Toast.makeText(context, "WTF?!",
