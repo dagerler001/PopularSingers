@@ -1,4 +1,4 @@
-package com.example.vorona.appl;
+package com.example.vorona.appl.ui.fragments;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -15,8 +15,13 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.vorona.appl.R;
 import com.example.vorona.appl.list.FirstRecyclerAdapter;
 import com.example.vorona.appl.list.PerformerSelectedListener;
+import com.example.vorona.appl.loaders.DatabaseLoader;
+import com.example.vorona.appl.loaders.DownloadState;
+import com.example.vorona.appl.loaders.JsonLoader;
+import com.example.vorona.appl.model.Singer;
 
 import java.util.List;
 
@@ -25,10 +30,9 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
 
     final String POSITION = "Position";
     private RecyclerView rv;
-    private ProgressBar p_bar;
+    private ProgressBar progressBar;
     private TextView title;
     private String type = "";
-    private RecyclerView.LayoutManager layoutManager;
     private int position;
 
     public static ListFragment newInstance(String t) {
@@ -49,7 +53,7 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
         View rootView = inflater.inflate(R.layout.fragment_list, container, false);
         title = (TextView) rootView.findViewById(R.id.no_d);
         rv = (RecyclerView) rootView.findViewById(R.id.list_d);
-        p_bar = (ProgressBar) rootView.findViewById(R.id.progress_d);
+        progressBar = (ProgressBar) rootView.findViewById(R.id.progress_d);
         Typeface face = Typeface.createFromAsset(title.getContext().getAssets(), "fonts/Elbing.otf");
         title.setTypeface(face);
 
@@ -85,23 +89,23 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
     protected void updateView(DownloadState state) {
         switch (state) {
             case DOWNLOADING:
-                p_bar.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
                 rv.setVisibility(View.INVISIBLE);
                 title.setVisibility(View.INVISIBLE);
                 break;
             case DONE:
-                p_bar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.INVISIBLE);
                 rv.setVisibility(View.VISIBLE);
                 title.setVisibility(View.INVISIBLE);
                 break;
             case ERROR:
-                p_bar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.INVISIBLE);
                 rv.setVisibility(View.INVISIBLE);
                 title.setVisibility(View.VISIBLE);
                 title.setText(R.string.txt_error);
                 break;
             case EMPTY:
-                p_bar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.INVISIBLE);
                 rv.setVisibility(View.INVISIBLE);
                 title.setVisibility(View.VISIBLE);
                 title.setText(R.string.txt_empty);
@@ -135,7 +139,7 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
         }
         position = scrollPosition;
         int cnt = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2);
-        layoutManager = new GridLayoutManager(getActivity(), cnt);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getActivity(), cnt);
         rv.setLayoutManager(layoutManager);
 //        rv.scrollToPosition(scrollPosition);
     }

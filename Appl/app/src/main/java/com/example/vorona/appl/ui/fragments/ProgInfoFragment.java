@@ -1,10 +1,12 @@
-package com.example.vorona.appl;
+package com.example.vorona.appl.ui.fragments;
 
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.vorona.appl.R;
 
 public class ProgInfoFragment extends Fragment{
 

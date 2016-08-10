@@ -1,8 +1,8 @@
-package com.example.vorona.appl;
+package com.example.vorona.appl.loaders;
 
 public enum DownloadState {
     DOWNLOADING,
     DONE,
     ERROR,
-    EMPTY;
+    EMPTY
 }

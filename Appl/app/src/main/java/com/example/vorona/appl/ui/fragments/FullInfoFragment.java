@@ -1,11 +1,7 @@
-package com.example.vorona.appl;
+package com.example.vorona.appl.ui.fragments;
 
 import android.app.Fragment;
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -17,16 +13,31 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.vorona.appl.R;
+import com.example.vorona.appl.db.DbBackend;
+import com.example.vorona.appl.db.DbContract;
+import com.example.vorona.appl.model.Singer;
 import com.squareup.picasso.Picasso;
 
-public class FullInfoFragment extends Fragment {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
-    /**
-     * Helper for database access.
-     */
-    protected DBHelper dbHelper;
+public class FullInfoFragment extends Fragment implements DbContract {
 
+    protected DbBackend dbBackend;
+    @BindView(R.id.title)
+    TextView txt;
+    @BindView(R.id.bio)
+    TextView bio;
+    @BindView(R.id.tracks)
+    TextView tracks;
+    @BindView(R.id.cover_big)
+    ImageView cover;
+    @BindView(R.id.background)
+    ImageView back;
     private Singer singer;
+    private Unbinder viewBinder;
 
     public static FullInfoFragment newInstance(Singer singer) {
         Bundle args = new Bundle();
@@ -40,7 +51,9 @@ public class FullInfoFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         getActivity().setTitle("Исполнители");
-        return inflater.inflate(R.layout.fragment_info, null);
+        View view = inflater.inflate(R.layout.fragment_info, container, false);
+        viewBinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
@@ -52,33 +65,34 @@ public class FullInfoFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-
-        //Create an object for database control
-        dbHelper = new DBHelper(getActivity());
-
+        dbBackend = new DbBackend(getActivity());
         // Add in "Recent" table
-        if (!addToTable(getString(R.string.recent_table), singer))
-            addToTable(getString(R.string.recent_table), singer);
+        dbBackend.insertSinger(singer, RECENT);
 
+        final boolean inFavs;
         final FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
-        if (checkInTable(getString(R.string.fav_table), singer)) {
+        if (dbBackend.getSinger(singer.getId(), FAVOURITES) != null) {
             fab.setImageResource(R.drawable.added);
+            inFavs = true;
         } else {
             fab.setImageResource(R.drawable.star);
+            inFavs = false;
         }
 
         //If selected performer already presents in favourite list delete it, add otherwise
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!addToTable(getString(R.string.fav_table), singer)) {
+                if (inFavs) {
                     Snackbar.make(view, getString(R.string.deleted), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     fab.setImageResource(R.drawable.star);
+                    dbBackend.deleteSingerFromFavourites(singer);
                 } else {
                     Snackbar.make(view, getString(R.string.added), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     fab.setImageResource(R.drawable.added);
+                    dbBackend.insertSinger(singer, FAVOURITES);
                 }
             }
         });
@@ -86,73 +100,24 @@ public class FullInfoFragment extends Fragment {
 
         Typeface face = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Elbing.otf");
 
-        //name
-        TextView txt = (TextView) view.findViewById(R.id.title);
         txt.setText(singer.getName());
         txt.setTypeface(face);
 
-        //description
-        TextView bio = (TextView) view.findViewById(R.id.bio);
         bio.setMovementMethod(new ScrollingMovementMethod());
         bio.setText(singer.getName() + " - " + singer.getBio());
         bio.setTypeface(face);
 
-        //number of tracks and albums
-        TextView tracks = (TextView) view.findViewById(R.id.tracks);
         tracks.setTypeface(face);
         tracks.setText("Альбомов " + singer.getAlbums() + ", треков " + singer.getTracks());
 
-        //cover
-        ImageView cover = (ImageView) view.findViewById(R.id.cover_big);
         Context context = cover.getContext();
         Picasso.with(context).load(singer.getCover_big()).into(cover);
-        ImageView back = (ImageView) view.findViewById(R.id.background);
         Picasso.with(context).load(singer.getCover_big()).into(back);
-
     }
 
-    /**
-     * Add record of specified singer in specified table.
-     */
-    private boolean addToTable(String table, Singer singer) {
-
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + table + " WHERE id=" + singer.getId(), null);
-        boolean added = false;
-        if (cursor.moveToFirst()) {
-            db.delete(table, "id='" + singer.getId() + "'", null);
-        } else {
-            try {
-                db.insertOrThrow(table, null, createCV(singer));
-                added = true;
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        db.close();
-        cursor.close();
-        return added;
-    }
-
-    /**
-     * Check if in specified table exists record of specified performer.
-     */
-    private boolean checkInTable(String table, Singer singer) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        Cursor cursor = db.rawQuery("SELECT * FROM " + table + " WHERE id=" + singer.getId(), null);
-        boolean f = cursor.moveToFirst();
-        cursor.close();
-        return f;
-
-    }
-
-    /**
-     * Combines ContentValues for adding in table.
-     */
-    private ContentValues createCV(Singer singer) {
-        ContentValues cv = new ContentValues();
-        cv.put("id", singer.getId());
-        return cv;
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        viewBinder.unbind();
     }
 }

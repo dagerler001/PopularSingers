@@ -1,4 +1,4 @@
-package com.example.vorona.appl;
+package com.example.vorona.appl.ui.activities;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -21,6 +21,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.example.vorona.appl.R;
+import com.example.vorona.appl.ui.fragments.ListFragment;
+import com.example.vorona.appl.ui.fragments.ProgInfoFragment;
+
+import static com.example.vorona.appl.db.DbContract.ARTISTS;
+import static com.example.vorona.appl.db.DbContract.FAVOURITES;
+import static com.example.vorona.appl.db.DbContract.RECENT;
 
 /**
  * Start Activity with list of performers
@@ -56,7 +64,7 @@ public class PerformersActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         if (getFragmentManager().findFragmentById(R.id.fragment_holder) == null) {
-            Fragment fragment = ListFragment.newInstance("Performers");
+            Fragment fragment = ListFragment.newInstance(ARTISTS);
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
             fTrans.add(R.id.fragment_holder, fragment);
             fTrans.addToBackStack(null);
@@ -108,19 +116,19 @@ public class PerformersActivity extends AppCompatActivity
             int cnt = getFragmentManager().getBackStackEntryCount();
             for (int i = 0; i < cnt; i++)
                 getFragmentManager().popBackStack();
-            Fragment fragment = ListFragment.newInstance("Performers");
+            Fragment fragment = ListFragment.newInstance(ARTISTS);
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
             fTrans.add(R.id.fragment_holder, fragment);
             fTrans.addToBackStack(null);
             fTrans.commit();
         } else if (id == R.id.favs) {
-            Fragment fragment = ListFragment.newInstance(getString(R.string.fav_table));
+            Fragment fragment = ListFragment.newInstance(FAVOURITES);
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
             fTrans.add(R.id.fragment_holder, fragment);
             fTrans.addToBackStack(null);
             fTrans.commit();
         } else if (id == R.id.recent) {
-            Fragment fragment = ListFragment.newInstance(getString(R.string.recent_table));
+            Fragment fragment = ListFragment.newInstance(RECENT);
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
             fTrans.add(R.id.fragment_holder, fragment);
             fTrans.addToBackStack(null);
@@ -188,8 +196,8 @@ public class PerformersActivity extends AppCompatActivity
         } else {
             builder.setContentText(notificationText);
         }
-        builder.addAction(R.drawable.yandex_music, getString(R.string.yandex_music), PendingIntent.getActivity(this, 1, launchIntentMusic, 0));
-        builder.addAction(R.drawable.yandex_radio, getString(R.string.yandex_radio), PendingIntent.getActivity(this, 2, launchIntentRadio, 0));
+        builder.addAction(R.drawable.ic_music, getString(R.string.yandex_music), PendingIntent.getActivity(this, 1, launchIntentMusic, 0));
+        builder.addAction(R.drawable.ic_mail, getString(R.string.yandex_radio), PendingIntent.getActivity(this, 2, launchIntentRadio, 0));
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(notificationId, builder.build());
