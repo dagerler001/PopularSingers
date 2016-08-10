@@ -25,15 +25,23 @@ import com.example.vorona.appl.model.Singer;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class ListFragment extends Fragment implements PerformerSelectedListener,
         LoaderManager.LoaderCallbacks<List<Singer>> {
 
-    final String POSITION = "Position";
-    private RecyclerView rv;
-    private ProgressBar progressBar;
-    private TextView title;
+    @BindView(R.id.list_d)
+    RecyclerView rv;
+    @BindView(R.id.progress_d)
+    ProgressBar progressBar;
+    @BindView(R.id.no_d)
+    TextView title;
+
+    private Unbinder viewBinder;
+
     private String type = "";
-    private int position;
 
     public static ListFragment newInstance(String t) {
         Bundle args = new Bundle();
@@ -51,12 +59,9 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getActivity().setTitle(type);
         View rootView = inflater.inflate(R.layout.fragment_list, container, false);
-        title = (TextView) rootView.findViewById(R.id.no_d);
-        rv = (RecyclerView) rootView.findViewById(R.id.list_d);
-        progressBar = (ProgressBar) rootView.findViewById(R.id.progress_d);
+        viewBinder = ButterKnife.bind(this, rootView);
         Typeface face = Typeface.createFromAsset(title.getContext().getAssets(), "fonts/Elbing.otf");
         title.setTypeface(face);
-
         rv.setAdapter(new FirstRecyclerAdapter(null));
         setRecyclerViewLayoutManager(savedInstanceState);
         return rootView;
@@ -67,7 +72,6 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
         super.onCreate(savedInstanceState);
         type = getArguments().getString("Type");
         setHasOptionsMenu(true);
-
     }
 
     @Override
@@ -76,7 +80,6 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
         Bundle arg = new Bundle();
         arg.putString("Table", type);
         getLoaderManager().initLoader(0, arg, this);
-
     }
 
     /**
@@ -119,29 +122,16 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
     }
 
     @Override
-    public void onSaveInstanceState(Bundle state) {
-        RecyclerView.LayoutManager layoutManager = rv.getLayoutManager();
-        if (layoutManager != null) {
-            int pos = -1;
-            if (layoutManager instanceof GridLayoutManager) {
-                pos = ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition();
-            }
-            state.putInt(POSITION, pos);
-        }
-        super.onSaveInstanceState(state);
+    public void onDestroyView() {
+        super.onDestroyView();
+        viewBinder.unbind();
     }
 
 
     public void setRecyclerViewLayoutManager(Bundle savedInstanceState) {
-        int scrollPosition = 0;
-        if (savedInstanceState != null) {
-            scrollPosition = savedInstanceState.getInt(POSITION);
-        }
-        position = scrollPosition;
         int cnt = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getActivity(), cnt);
         rv.setLayoutManager(layoutManager);
-//        rv.scrollToPosition(scrollPosition);
     }
 
     /**
@@ -177,12 +167,9 @@ public class ListFragment extends Fragment implements PerformerSelectedListener,
         FirstRecyclerAdapter mAdapter = new FirstRecyclerAdapter(data);
         mAdapter.setPerformerSelectedListener(this);
         rv.setAdapter(mAdapter);
-        rv.scrollToPosition(position);
     }
-
 
     @Override
     public void onLoaderReset(Loader<List<Singer>> loader) {
-//        rv.setAdapter(new FirstRecyclerAdapter(null));
     }
 }

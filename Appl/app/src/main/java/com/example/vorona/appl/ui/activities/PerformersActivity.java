@@ -112,28 +112,25 @@ public class PerformersActivity extends AppCompatActivity
         int id = item.getItemId();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        if (id == R.id.main_activity) {
-            int cnt = getFragmentManager().getBackStackEntryCount();
-            for (int i = 0; i < cnt; i++)
-                getFragmentManager().popBackStack();
-            Fragment fragment = ListFragment.newInstance(ARTISTS);
+
+        if (id == R.id.main_activity || id == R.id.favs || id == R.id.recent) {
+            String table;
+            if (id == R.id.main_activity) {
+                int cnt = getFragmentManager().getBackStackEntryCount();
+                for (int i = 0; i < cnt; i++)
+                    getFragmentManager().popBackStack();
+                table = ARTISTS;
+            } else if (id == R.id.favs) {
+                table = FAVOURITES;
+            } else
+                table = RECENT;
+            Fragment fragment = ListFragment.newInstance(table);
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
             fTrans.add(R.id.fragment_holder, fragment);
             fTrans.addToBackStack(null);
             fTrans.commit();
-        } else if (id == R.id.favs) {
-            Fragment fragment = ListFragment.newInstance(FAVOURITES);
-            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
-            fTrans.add(R.id.fragment_holder, fragment);
-            fTrans.addToBackStack(null);
-            fTrans.commit();
-        } else if (id == R.id.recent) {
-            Fragment fragment = ListFragment.newInstance(RECENT);
-            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
-            fTrans.add(R.id.fragment_holder, fragment);
-            fTrans.addToBackStack(null);
-            fTrans.commit();
-        }  else if (id == R.id.info) {
+
+        } else if (id == R.id.info) {
             Fragment fragment = new ProgInfoFragment();
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
             fTrans.add(R.id.fragment_holder, fragment);
@@ -141,12 +138,9 @@ public class PerformersActivity extends AppCompatActivity
             fTrans.commit();
         } else if (id == R.id.email) {
             Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-            String aEmail =  "veda345@yandex.ru";
-
+            String aEmail = "veda345@yandex.ru";
             emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmail);
-
             emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Popular Singers App");
-
             emailIntent.setType("plain/text");
             emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Write your text here.");
 
@@ -154,7 +148,6 @@ public class PerformersActivity extends AppCompatActivity
         }
         return true;
     }
-
 
     @Override
     public void onPause() {
@@ -172,8 +165,7 @@ public class PerformersActivity extends AppCompatActivity
                 setTitle("О программе");
             else
                 setTitle("Исполнители");
-        }
-        else
+        } else
             setTitle("Исполнители");
     }
 
@@ -204,18 +196,14 @@ public class PerformersActivity extends AppCompatActivity
     }
 
     private class MusicIntentReceiver extends BroadcastReceiver {
-        @Override public void onReceive(Context context, Intent intent) {
+        @Override
+        public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
                 int state = intent.getIntExtra("state", -1);
                 switch (state) {
                     case 0:
-//                        Toast.makeText(context, "ooops",
-//                                Toast.LENGTH_LONG).show();
-
                         break;
                     case 1:
-//                        Toast.makeText(context, "Heeeey",
-//                                Toast.LENGTH_LONG).show();
                         show(getString(R.string.open), getString(R.string.install), 1);
                         break;
                     default:
