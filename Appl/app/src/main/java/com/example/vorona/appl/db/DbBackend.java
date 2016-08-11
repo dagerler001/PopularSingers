@@ -23,7 +23,7 @@ public class DbBackend implements DbContract {
     public List<Singer> getSingers() {
         SQLiteDatabase db = mDbOpenHelper.getWritableDatabase();
         List<Singer> singerList = new ArrayList<>();
-        Cursor c = db.query(ARTISTS, null, null, null, null, null, null);
+        ArtistCursor c = new ArtistCursor(db.query(ARTISTS, null, null, null, null, null, null));
         if (c.moveToFirst()) {
             do {
                 Singer singer = new Singer();
@@ -59,9 +59,9 @@ public class DbBackend implements DbContract {
     private List<Singer> getListFromTable(String table) {
         List<Singer> list = new ArrayList<>();
         SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + table +
+        ArtistCursor cursor = new ArtistCursor(db.rawQuery("SELECT * FROM " + table +
                 " LEFT JOIN " + ARTISTS + " ON " + table + "." + ID + " = " +
-                ARTISTS + "." + Artists.ID, null);
+                ARTISTS + "." + Artists.ID, null));
         while (cursor.moveToNext()) {
             Singer singer = new Singer();
             setSingers(singer, cursor);
@@ -71,15 +71,15 @@ public class DbBackend implements DbContract {
         return list;
     }
 
-    private void setSingers(Singer singer, Cursor c) {
-        singer.setId(c.getInt(c.getColumnIndex(Artists.ID)));
-        singer.setName(c.getString(c.getColumnIndex(Artists.NAME)));
-        singer.setBio(c.getString(c.getColumnIndex(Artists.BIO)));
-        singer.setAlbums(c.getInt(c.getColumnIndex(Artists.ALBUM)));
-        singer.setTracks(c.getInt(c.getColumnIndex(Artists.BIO)));
-        singer.setCover_big(c.getString(c.getColumnIndex(Artists.COVER)));
-        singer.setGenres(c.getString(c.getColumnIndex(Artists.GENRES)));
-        singer.setCover_small(c.getString(c.getColumnIndex(Artists.COVER_SMALL)));
+    private void setSingers(Singer singer, ArtistCursor c) {
+        singer.setId(c.getId());
+        singer.setName(c.getName());
+        singer.setBio(c.getBio());
+        singer.setAlbums(c.getAlbums());
+        singer.setTracks(c.getTracks());
+        singer.setCover_big(c.getCover_big());
+        singer.setGenres(c.getGenres());
+        singer.setCover_small(c.getCover_small());
     }
 
     public void deleteSingerFromFavourites(Singer singer) {
@@ -90,8 +90,8 @@ public class DbBackend implements DbContract {
     public Singer getSinger(long id, String table) {
         SQLiteDatabase db = mDbOpenHelper.getWritableDatabase();
         Singer singer = null;
-        Cursor c = db.query(table, null, Artists.ID + " = ?",
-                new String[]{Long.toString(id)}, null, null, null);
+        ArtistCursor c = new ArtistCursor(db.query(table, null, Artists.ID + " = ?",
+                new String[]{Long.toString(id)}, null, null, null));
         if (c.moveToFirst()) {
             singer = new Singer();
             if (table.equals(ARTISTS))

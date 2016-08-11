@@ -117,14 +117,18 @@ public class DbBackendTest {
         Singer singer = new Singer();
         singer.setName("AAAA");
         singer.setId(1);
+
         Singer singer2 = new Singer();
         singer2.setName("BBB");
         singer2.setId(2);
+
         singerList.add(singer);
         singerList.add(singer2);
         dbBackend.insertList(singerList);
+
         dbBackend.insertSinger(singer, FAVOURITES);
         dbBackend.insertSinger(singer2, FAVOURITES);
+
         Assert.assertEquals(getCount(db, FAVOURITES), 2);
         List<Singer> s = dbBackend.getFavs();
         Assert.assertEquals(s.size(), 2);
