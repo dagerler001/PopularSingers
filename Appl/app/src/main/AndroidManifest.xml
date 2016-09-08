@@ -10,9 +10,9 @@
         android:icon="@drawable/launch"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
-            android:name=".PerformersActivity"
+            android:name=".ui.activities.PerformersActivity"
             android:label="Исполнители"
             android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
@@ -20,24 +20,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".FullInfoActivity"
-            android:label=""
-            android:parentActivityName=".PerformersActivity"
-            android:theme="@style/AppTheme.NoActionBar" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.vorona.appl.PerformersActivity" />
-        </activity>
-        <activity
-            android:name=".DatabaseActivity"
-            android:label=""
-            android:parentActivityName=".PerformersActivity"
-            android:theme="@style/AppTheme.NoActionBar" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.vorona.appl.PerformersActivity" />
         </activity>
     </application>
 

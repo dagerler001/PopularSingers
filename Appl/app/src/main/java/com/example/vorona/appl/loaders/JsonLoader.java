@@ -1,14 +1,11 @@
-package com.example.vorona.appl;
+package com.example.vorona.appl.loaders;
 
-import android.content.res.Configuration;
-import android.os.AsyncTask;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.content.AsyncTaskLoader;
+import android.content.Context;
 import android.util.JsonReader;
-import android.util.Log;
 
-import com.example.vorona.appl.list.FirstRecyclerAdapter;
-import com.example.vorona.appl.list.RecyclerAdapter;
+import com.example.vorona.appl.db.DbBackend;
+import com.example.vorona.appl.model.Singer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,108 +15,28 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Asynchronous task for loading json-file and parsing.
- * The final list of perforemers is displayed in recyclerView
- */
-public class GetInfoAsyncTask extends AsyncTask<String, Integer, Integer> {
+public class JsonLoader extends AsyncTaskLoader<List<Singer>> {
+    private List<Singer> singers;
 
-    /**
-     * Activity attached to concrete GetInfoAsyncTask
-     */
-    private PerformersActivity activity;
-
-    /**
-     * Current state of task
-     */
-    private DownloadState state;
-
-    private String LOG_TAG = "GetInfoAsyncTask";
-
-    /**
-     * Final list of performers from json-file
-     */
-    List<Singer> singers;
-
-    /**
-     * Create an instance of GetInfoAsyncTask and attach related activity
-     * @param activity activity on which GetInfoAsyncTask was called
-     */
-    public GetInfoAsyncTask(PerformersActivity activity) {
-        this.activity = activity;
-        singers = new ArrayList<>();
-        state = DownloadState.DOWNLOADING;
-        activity.updateView(this);
+    public JsonLoader(Context context) {
+        super(context);
     }
 
-    /**
-     * Attach related activity
-     * @param activity activity on which GetInfoAsyncTask was called
-     */
-    public void attachActivity(PerformersActivity activity) {
-        this.activity = activity;
-        activity.updateView(this);
-    }
-
-    /**
-     * @return current state of task
-     */
-    DownloadState getState (){
-        return state;
-    }
-
-    /**
-     * Load json-file and parse it into
-     * @code {List<Singer> }.
-     * @param params ignored
-     */
     @Override
-    protected Integer doInBackground(String... params) {
-        Log.w(LOG_TAG, "Started Async Task");
+    public List<Singer> loadInBackground() {
         try {
             singers = getSinger();
             if (singers != null) {
-                state = DownloadState.DONE;
-            } else {
-                state = DownloadState.EMPTY;
+                DbBackend dbBackend = new DbBackend(getContext());
+                dbBackend.insertList(singers);
             }
-            return null;
         } catch (Exception e) {
             e.printStackTrace();
-            Log.w(LOG_TAG, "We got exception during download");
-            state = DownloadState.ERROR;
             return null;
         }
+        return singers;
     }
 
-    /**
-     * Show uploaded list in recyclerView
-     * @param vi
-     */
-    @Override
-    protected void onPostExecute(Integer vi) {
-        activity.updateView(this);
-        Log.w(LOG_TAG, "Finished Async Task");
-        if (state == DownloadState.DONE) {
-            RecyclerView rv = (RecyclerView) activity.findViewById(R.id.list_perf);
-            FirstRecyclerAdapter mAdapter = new FirstRecyclerAdapter(singers);
-            setListener(rv, mAdapter);
-        }
-    }
-
-    private void setListener(RecyclerView rv, RecyclerAdapter adapter) {
-        rv.setHasFixedSize(true);
-        int cnt = (activity.getResources().getConfiguration().orientation ==  Configuration.ORIENTATION_LANDSCAPE ? 3 : 2);
-        StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(cnt, StaggeredGridLayoutManager.VERTICAL);
-        rv.setLayoutManager(mLayoutManager);
-        adapter.setPerformerSelectedListener(activity);
-        rv.setAdapter(adapter);
-    }
-
-    /**
-     * Open http url connection, start reading json
-     * @return list of performers
-     */
     public List<Singer> getSinger() throws IOException {
 
         URL url = new URL("http://cache-spb05.cdn.yandex.net/download.cdn.yandex.net/mobilization-2016/artists.json");
@@ -131,21 +48,19 @@ public class GetInfoAsyncTask extends AsyncTask<String, Integer, Integer> {
             List<Singer> res = readJson(reader);
             reader.close();
             return res;
-        }
-        finally {
+        } finally {
             if (in != null) {
                 in.close();
             }
             connection.disconnect();
         }
-
     }
 
     /**
      * Combine all performers
      */
     private List<Singer> readJson(JsonReader reader) throws IOException {
-        ArrayList<Singer> ar = new ArrayList<Singer>();
+        ArrayList<Singer> ar = new ArrayList<>();
         Singer cur;
         reader.beginArray();
         while (reader.hasNext()) {
@@ -174,10 +89,10 @@ public class GetInfoAsyncTask extends AsyncTask<String, Integer, Integer> {
                     res.setName(reader.nextString());
                     break;
                 case "tracks":
-                    res.setTracks((int)reader.nextLong());
+                    res.setTracks((int) reader.nextLong());
                     break;
                 case "albums":
-                    res.setAlbums((int)reader.nextLong());
+                    res.setAlbums((int) reader.nextLong());
                     break;
                 case "link":
                     res.setLink(reader.nextString());
@@ -222,7 +137,36 @@ public class GetInfoAsyncTask extends AsyncTask<String, Integer, Integer> {
         return res;
     }
 
+    @Override
+    public void deliverResult(List<Singer> sin) {
+        singers = sin;
+        if (isStarted()) {
+            super.deliverResult(sin);
+        }
+    }
+
+    @Override
+    protected void onStartLoading() {
+        if (singers != null) {
+            deliverResult(singers);
+        }
+
+        if (takeContentChanged() || singers == null) {
+            forceLoad();
+        }
+    }
+
+    @Override
+    protected void onStopLoading() {
+        cancelLoad();
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
+        onStopLoading();
+        if (singers != null) {
+            singers = null;
+        }
+    }
 }
-
-
-

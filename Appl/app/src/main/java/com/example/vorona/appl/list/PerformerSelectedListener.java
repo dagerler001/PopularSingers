@@ -1,6 +1,6 @@
 package com.example.vorona.appl.list;
 
-import com.example.vorona.appl.Singer;
+import com.example.vorona.appl.model.Singer;
 
 /**
  *  Interface for receiving events from RecycleView

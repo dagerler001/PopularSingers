@@ -1,9 +1,18 @@
-package com.example.vorona.appl;
+package com.example.vorona.appl.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Singer implements Parcelable{
+    public static final Parcelable.Creator<Singer> CREATOR = new Parcelable.Creator<Singer>() {
+        public Singer createFromParcel(Parcel parcel) {
+            return new Singer(parcel);
+        }
+
+        public Singer[] newArray(int size) {
+            return new Singer[size];
+        }
+    };
     private long id;
     private String genres = "";
     private String link;
@@ -44,16 +53,6 @@ public class Singer implements Parcelable{
         return (int)this.id;
     }
 
-    public static final Parcelable.Creator<Singer> CREATOR = new Parcelable.Creator<Singer>() {
-        public Singer createFromParcel(Parcel parcel) {
-            return new Singer(parcel);
-        }
-
-        public Singer[] newArray(int size) {
-            return new Singer[size];
-        }
-    };
-
     @Override
     public int describeContents() {
         return 0;
@@ -75,75 +74,75 @@ public class Singer implements Parcelable{
         dest.writeString(genres);
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setCover_small(String cover_small) {
-        this.cover_small = cover_small;
-    }
-
-    public void setCover_big(String cover_big) {
-        this.cover_big = cover_big;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public void setGenres(String genres) {
-        this.genres = genres;
+    public int getAlbums() {
+        return albums;
     }
 
     public void setAlbums(int albums) {
         this.albums = albums;
     }
 
-    public void setLink(String link) {
-        this.link = link;
+    public int getTracks() {
+        return tracks;
     }
 
     public void setTracks(int tracks) {
         this.tracks = tracks;
     }
 
-    public int getAlbums() {
-        return albums;
-    }
-
-    public int getTracks() {
-        return tracks;
-    }
-
     public String getCover_small() {
         return cover_small;
+    }
+
+    public void setCover_small(String cover_small) {
+        this.cover_small = cover_small;
     }
 
     public String getCover_big() {
         return cover_big;
     }
 
+    public void setCover_big(String cover_big) {
+        this.cover_big = cover_big;
+    }
+
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getBio() {
         return bio;
     }
 
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
     public String getGenres() {
         return genres;
+    }
+
+    public void setGenres(String genres) {
+        this.genres = genres;
     }
 
     public String getLink() {
         return link;
     }
 
+    public void setLink(String link) {
+        this.link = link;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

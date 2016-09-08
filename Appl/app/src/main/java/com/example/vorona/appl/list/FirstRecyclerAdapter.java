@@ -1,14 +1,12 @@
 package com.example.vorona.appl.list;
 
 import android.content.Context;
-import android.view.Display;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
-import com.example.vorona.appl.PerformersActivity;
 import com.example.vorona.appl.R;
-import com.example.vorona.appl.Singer;
+import com.example.vorona.appl.model.Singer;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -70,6 +68,7 @@ public class FirstRecyclerAdapter extends RecyclerAdapter implements Animation.A
      */
     @Override
     public int getItemCount() {
+        if (singers == null) return 0;
         return singers.size();
     }
 
